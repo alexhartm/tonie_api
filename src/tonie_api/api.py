@@ -29,10 +29,23 @@ class TonieAPI:
 
     API_URL = "https://api.tonie.cloud/v2"
 
-    def __init__(self, username: str, password: str) -> None:
+    def __init__(self, username: str | None = None, password: str | None = None, token: str | None = None) -> None:
         """Initializes the API and creates a session token for tonie cloud session."""
         self.session = TonieCloudSession()
-        self.session.acquire_token(username=username, password=password)
+
+        # Attempt to load token from disk if available
+        if not self.session.token:
+            if token:
+                self.session.acquire_token(token=token)
+            elif username and password:
+                self.session.acquire_token(username=username, password=password)
+            else:
+                msg = "Failed to acquire a valid session token. Provide credentials or a token."
+                raise ValueError(msg)
+
+        if not self.session.token:
+            msg = "Failed to acquire a valid session token. Please check your credentials."
+            raise ValueError(msg)
 
     def __request(self, url: str, request_type: HttpMethod, data: dict | None = None) -> dict:
         headers = {"Authorization": f"Bearer {self.session.token}"}

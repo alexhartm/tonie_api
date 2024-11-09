@@ -131,3 +131,6 @@ dmypy.json
 
 # VS Code
 .vscode/
+
+# Others
+tonie_api_token.json
